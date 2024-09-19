@@ -1,12 +1,15 @@
 import { Message } from "../types";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Typewriter from "typewriter-effect";
 import socket from "../lib/socket.js";
-
+import { CurrentRoomContextType } from "../types";
+import { CurrentRoomContext } from "../lib/contexts.js";
 
 export default function Chat() {
   const [text, setText] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
+  const { currentRoom, setCurrentRoom } =
+    useContext<CurrentRoomContextType>(CurrentRoomContext);
 
   socket.on("message", (message: Message) => {
     console.dir(message);
@@ -53,13 +56,11 @@ export default function Chat() {
                       >
                         <Typewriter
                           onInit={(typewriter) => {
-                            typewriter
-                              .typeString(`${data.message}`)
-                              .start();
+                            typewriter.typeString(`${data.message}`).start();
                           }}
                           options={{
                             cursor: "",
-                            delay: 25
+                            delay: 25,
                           }}
                         />
                       </li>
@@ -87,7 +88,11 @@ export default function Chat() {
               className="border-blue-100 hover:border-blue-200 transition-all border-2 rounded-full p-3"
               onClick={() => {
                 // setMessages([...messages, text]);
-                socket.send({ message: text, id: socket.id });
+                socket.send({
+                  message: text,
+                  id: socket.id,
+                  room: currentRoom,
+                });
               }}
             >
               <svg

@@ -1,5 +1,6 @@
 import fastify from "fastify";
 import fastifyIO from "fastify-socket.io";
+import redisClient from './redis.js'
 
 const server = fastify({
   logger: true,
@@ -10,12 +11,6 @@ server.register(fastifyIO, {
     origin: "http://localhost:5173"
   }
 });
-
-// const io = new Server({
-//   cors: {
-//     origin: "*",
-//   },
-// });
 
 server.get("/", (request, reply) => {
   server.io.emit("message", { message: `this is a message`, id: "server" });
@@ -39,6 +34,9 @@ server.ready().then(() => {
   server.io.on("connection", (socket) => {
 
     socket.on("message", (data) => {
+      if (redisClient.exists(data.room)) {
+        redisClient.rPush(data.room, data.message)
+      } else redisClient.set(data.room, [])
       socket.emit("message", data);
       socket.emit("message", {
         message: `resposta espelhada: ${data.message}`,
