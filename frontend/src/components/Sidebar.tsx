@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
-import socket from "../lib/socket.js";
 import { CurrentRoomContext, RoomsContext } from "../lib/contexts.js";
 import { CurrentRoomContextType, RoomContextType } from "../types.js";
-import { v4 as uuidv4, v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Sidebar() {
   const [sidebarText, setSidebarText] = useState<string | undefined>();
@@ -66,7 +65,7 @@ export default function Sidebar() {
               <button
                 onClick={() => {
                   setForm(!formOpen);
-                  setRooms([...rooms, { name: sidebarText, id: uuidv4() }]);
+                  setRooms([...rooms, { name: sidebarText!, id: uuidv4() }]);
                   setCurrentRoom(rooms[-1]);
                   setSidebarText("");
                 }}

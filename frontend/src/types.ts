@@ -6,8 +6,7 @@ export type Room = {
 
 export type Message = {
     message: string,
-    id: string,
-    room: string
+    id: string
 }
 
 export type RoomContextType = {

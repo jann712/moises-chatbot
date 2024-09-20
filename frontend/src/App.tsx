@@ -12,6 +12,8 @@ function App() {
 
   const [currentRoom, setCurrentRoom] = useState<Room>(firstRoom);
 
+  
+
   return (
     <CurrentRoomContext.Provider value={{ currentRoom, setCurrentRoom }}>
       <RoomsContext.Provider value={{ rooms, setRooms }}>

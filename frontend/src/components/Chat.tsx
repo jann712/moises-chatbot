@@ -1,26 +1,33 @@
 import { Message } from "../types";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Typewriter from "typewriter-effect";
 import socket from "../lib/socket.js";
 import { CurrentRoomContextType } from "../types";
 import { CurrentRoomContext } from "../lib/contexts.js";
 
 export default function Chat() {
-  const [text, setText] = useState<string>();
+  const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const { currentRoom, setCurrentRoom } =
     useContext<CurrentRoomContextType>(CurrentRoomContext);
 
-  socket.on("message", (message: Message) => {
-    console.dir(message);
-    setMessages([...messages, message]);
-  });
+  useEffect(() => {
+    socket.on("message", (newMessages: Message[]) => {
+      for (let message of newMessages) {
+        setMessages((messages) => [...messages, message])
+      }
+    });
+
+    return () => {
+      socket.off("message")
+    }
+  }, []);
 
   return (
     <div className="col-span-6 px-12">
       <div className="h-screen">
         <div className="overflow-hidden  h-5/6 mt-6">
-          <div className="py-8 px-12 overflow-auto h-full no-scrollbar">
+          <div className="py-8 px-12 overflow-y-auto flex-col-reverse flex h-full no-scrollbar">
             <ul className="flex flex-col gap-4">
               {messages.map((data, index) => {
                 return (
@@ -79,7 +86,7 @@ export default function Chat() {
               type="text"
               placeholder="Faça alguma pergunta..."
               value={text}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setText(e.target.value)
               }
             />
@@ -93,6 +100,10 @@ export default function Chat() {
                   id: socket.id,
                   room: currentRoom,
                 });
+                // setMessages([...messages, {
+                //   message: text,
+                //   id: socket.id!
+                // }])
               }}
             >
               <svg
