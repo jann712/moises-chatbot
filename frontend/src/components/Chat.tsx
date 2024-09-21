@@ -4,8 +4,19 @@ import Typewriter from "typewriter-effect";
 import socket from "../lib/socket.js";
 import { CurrentRoomContextType } from "../types";
 import { CurrentRoomContext } from "../lib/contexts.js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 export default function Chat() {
+  const queryClient = useQueryClient()
+  const query = useQuery({queryKey: ['completion'], queryFn: async () => {
+    const { prompt } = await axios.post(
+      "http://localhost:3000/prompt",
+      text
+    )
+
+    return prompt
+  }})
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const { currentRoom, setCurrentRoom } =
