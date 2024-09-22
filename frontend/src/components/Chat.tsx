@@ -9,30 +9,36 @@ import axios from "axios";
 
 export default function Chat() {
   const queryClient = useQueryClient()
-  const query = useQuery({queryKey: ['completion'], queryFn: async () => {
-    const { prompt } = await axios.post(
-      "http://localhost:3000/prompt",
-      text
-    )
-
-    return prompt
-  }})
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [currentMessage, setCurrentMessage] = useState<string>("")
   const { currentRoom, setCurrentRoom } =
     useContext<CurrentRoomContextType>(CurrentRoomContext);
 
-  useEffect(() => {
-    socket.on("message", (newMessages: Message[]) => {
-      for (let message of newMessages) {
-        setMessages((messages) => [...messages, message])
-      }
-    });
+    const { data, isLoading } = useQuery({queryKey: ['completion', currentMessage], queryFn: async () => {
+      const res = await axios.post(
+        "http://localhost:3000/prompt",
+        currentMessage
+      )
+  
+      return await res.data
+    }})
 
-    return () => {
-      socket.off("message")
-    }
-  }, []);
+  // useEffect(() => {
+  //   socket.on("message", (newMessages: Message[]) => {
+  //     for (let message of newMessages) {
+  //       setMessages((messages) => [...messages, message])
+  //     }
+  //   });
+
+  //   return () => {
+  //     socket.off("message")
+  //   }
+  // }, []);
+  useEffect(() => {
+    setMessages((messages) => [...messages, currentMessage, data])
+  }, [currentMessage])
+
 
   return (
     <div className="col-span-6 px-12">
@@ -106,15 +112,16 @@ export default function Chat() {
               className="border-blue-100 hover:border-blue-200 transition-all border-2 rounded-full p-3"
               onClick={() => {
                 // setMessages([...messages, text]);
-                socket.send({
-                  message: text,
-                  id: socket.id,
-                  room: currentRoom,
-                });
+                // socket.send({
+                //   message: text,
+                //   id: socket.id,
+                //   room: currentRoom,
+                // });
                 // setMessages([...messages, {
                 //   message: text,
                 //   id: socket.id!
                 // }])
+                setCurrentMessage(text)
               }}
             >
               <svg

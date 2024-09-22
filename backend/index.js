@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import fastifyIO from "fastify-socket.io";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import fastifyCors from "@fastify/cors";
 import 'dotenv/config'
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY)
@@ -9,6 +10,17 @@ const model = genAI.getGenerativeModel({model: "gemini-1.5-flash", maxOutputToke
 const server = fastify({
   logger: true,
 });
+
+server.register(fastifyIO, {
+  cors: {
+    origin: "http://localhost:5173",
+    
+  },
+});
+
+server.register(fastifyCors, {
+  origin: "http://localhost:5173"
+})
 
 server.post(("/prompt"), async (request, reply) => {
   let { prompt } = request.body
@@ -19,12 +31,6 @@ server.post(("/prompt"), async (request, reply) => {
   const text = response.text()
   return reply.status(200).send(text)
 })
-
-server.register(fastifyIO, {
-  cors: {
-    origin: "http://localhost:5173",
-  },
-});
 
 server.ready().then(() => {
   server.io.on("connection", (socket) => {
