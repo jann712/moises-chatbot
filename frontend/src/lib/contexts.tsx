@@ -1,14 +1,14 @@
 import { createContext } from "react";
-import socket from "./socket.js";
+// import socket from "./socket.js";
 import { CurrentRoomContextType, RoomContextType } from "../types.js";
 
 const defaultRooms:RoomContextType = {
-    rooms: [{name: 'Padrão', id: socket.id!}],
+    rooms: [{name: 'Padrão', id: "user"}],
     setRooms: () => {}
 }
 
 const defaultCurrentRoom:CurrentRoomContextType = {
-    currentRoom: {name: 'Padrão', id: socket.id!},
+    currentRoom: {name: 'Padrão', id: "user"},
     setCurrentRoom: () => {}
 }
 

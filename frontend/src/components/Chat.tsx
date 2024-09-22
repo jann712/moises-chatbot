@@ -1,7 +1,7 @@
 import { Message } from "../types";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import Typewriter from "typewriter-effect";
-import socket from "../lib/socket.js";
+// import socket from "../lib/socket.js";
 import { CurrentRoomContextType } from "../types";
 import { CurrentRoomContext } from "../lib/contexts.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,19 +11,32 @@ export default function Chat() {
   const queryClient = useQueryClient()
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentMessage, setCurrentMessage] = useState<string>("")
+  const [currentMessage, setCurrentMessage] = useState<string>()
   const { currentRoom, setCurrentRoom } =
     useContext<CurrentRoomContextType>(CurrentRoomContext);
 
-    const { data, isLoading } = useQuery({queryKey: ['completion', currentMessage], queryFn: async () => {
-      const res = await axios.post(
-        "http://localhost:3000/prompt",
-        currentMessage
-      )
-  
-      return await res.data
-    }})
+    // const { data, isLoading } = useQuery({queryKey: ['completion', currentMessage], queryFn: async () => {
+    //   const { data } = await axios.post(
+    //     "http://localhost:3000/prompt",
+    //   {
+    //     "prompt": currentMessage
+    //   }
+    //   )
+      
+    //   setMessages((messages) => [...messages, {id: "server", message: data}])
+    //   return data
+    // }})
+  async function fetchResponse (message:string) {
+    const { data } = await axios.post(
+      "http://localhost:3000/prompt",{
+        "prompt": message
+      }
+    )
 
+    setMessages((messages) => [...messages, {id: "server", message: data}])
+    return data
+  }
+  
   // useEffect(() => {
   //   socket.on("message", (newMessages: Message[]) => {
   //     for (let message of newMessages) {
@@ -35,9 +48,14 @@ export default function Chat() {
   //     socket.off("message")
   //   }
   // }, []);
-  useEffect(() => {
-    setMessages((messages) => [...messages, currentMessage, data])
-  }, [currentMessage])
+  // useEffect(() => {
+  //   if (currentMessage != undefined) {
+  //     setMessages((messages) => [...messages, {id: socket.id!, message: currentMessage}])
+  //     return
+  //   }
+  //   console.log(typeof currentMessage)
+  //   console.log("this is nuts!")
+  // }, [currentMessage])
 
 
   return (
@@ -51,12 +69,12 @@ export default function Chat() {
                   <div
                     key={index}
                     className={`flex items-center ${
-                      data.id == socket.id
+                      data.id == "user"
                         ? "flex-row-reverse [&>div]:ml-6"
                         : "flex-row [&>div]:mr-6"
                     }`}
                   >
-                    {data.id == socket.id ? (
+                    {data.id == "user" ? (
                       <div className="text-xl border-4 p-2 rounded-full border-orange-500">
                         🧍
                       </div>
@@ -68,7 +86,7 @@ export default function Chat() {
                     {/* <li className={`${data.id == props.socket.id ? "bg-orange-50" : "bg-blue-50"} w-auto py-2 px-6 antialiased rounded-full  text-wrap max-h-32 overflow-ellipsis overflow-hidden`}>
                           {data.message}
                         </li> */}
-                    {data.id == socket.id ? (
+                    {data.id == "user" ? (
                       <li
                         className={`"bg-orange-50 w-auto py-2 px-6 antialiased rounded-full text-wrap max-h-32 overflow-ellipsis overflow-hidden`}
                       >
@@ -76,7 +94,7 @@ export default function Chat() {
                       </li>
                     ) : (
                       <li
-                        className={`"bg-blue-50 w-auto py-2 px-6 antialiased rounded-full text-wrap max-h-32 overflow-ellipsis overflow-hidden`}
+                        className={`"bg-blue-50 w-auto py-2 px-6 antialiased rounded-full text-wrap max-h-32 overflow-ellipsis overflow-y-auto`}
                       >
                         <Typewriter
                           onInit={(typewriter) => {
@@ -84,7 +102,7 @@ export default function Chat() {
                           }}
                           options={{
                             cursor: "",
-                            delay: 25,
+                            delay: 15,
                           }}
                         />
                       </li>
@@ -103,7 +121,7 @@ export default function Chat() {
               type="text"
               placeholder="Faça alguma pergunta..."
               value={text}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setText(e.target.value)
               }
             />
@@ -121,7 +139,9 @@ export default function Chat() {
                 //   message: text,
                 //   id: socket.id!
                 // }])
-                setCurrentMessage(text)
+                
+                setMessages((messages) => [...messages, {id: "user", message: text}])
+                fetchResponse(text!)
               }}
             >
               <svg
