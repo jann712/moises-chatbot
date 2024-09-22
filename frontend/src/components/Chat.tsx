@@ -6,12 +6,13 @@ import { CurrentRoomContextType } from "../types";
 import { CurrentRoomContext } from "../lib/contexts.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { marked } from "marked";
+import { parse } from "uuid";
 
 export default function Chat() {
   const queryClient = useQueryClient()
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentMessage, setCurrentMessage] = useState<string>()
   const { currentRoom, setCurrentRoom } =
     useContext<CurrentRoomContextType>(CurrentRoomContext);
 
@@ -33,30 +34,11 @@ export default function Chat() {
       }
     )
 
-    setMessages((messages) => [...messages, {id: "server", message: data}])
+    const parsedData = await marked.parse(data)
+
+    setMessages((messages) => [...messages, {id: "server", message: parsedData}])
     return data
   }
-  
-  // useEffect(() => {
-  //   socket.on("message", (newMessages: Message[]) => {
-  //     for (let message of newMessages) {
-  //       setMessages((messages) => [...messages, message])
-  //     }
-  //   });
-
-  //   return () => {
-  //     socket.off("message")
-  //   }
-  // }, []);
-  // useEffect(() => {
-  //   if (currentMessage != undefined) {
-  //     setMessages((messages) => [...messages, {id: socket.id!, message: currentMessage}])
-  //     return
-  //   }
-  //   console.log(typeof currentMessage)
-  //   console.log("this is nuts!")
-  // }, [currentMessage])
-
 
   return (
     <div className="col-span-6 px-12">
@@ -70,8 +52,8 @@ export default function Chat() {
                     key={index}
                     className={`flex items-center ${
                       data.id == "user"
-                        ? "flex-row-reverse [&>div]:ml-6"
-                        : "flex-row [&>div]:mr-6"
+                        ? "flex-row-reverse [&>div]:ml-6 h-full"
+                        : "flex-row [&>div]:mr-6 h-full"
                     }`}
                   >
                     {data.id == "user" ? (
@@ -88,13 +70,13 @@ export default function Chat() {
                         </li> */}
                     {data.id == "user" ? (
                       <li
-                        className={`"bg-orange-50 w-auto py-2 px-6 antialiased rounded-full text-wrap max-h-32 overflow-ellipsis overflow-hidden`}
+                        className={`"bg-orange-50 w-auto py-2 px-6 antialiased text-wrap max-h-32 overflow-ellipsis overflow-y-auto`}
                       >
                         {data.message}
                       </li>
                     ) : (
                       <li
-                        className={`"bg-blue-50 w-auto py-2 px-6 antialiased rounded-full text-wrap max-h-32 overflow-ellipsis overflow-y-auto`}
+                        className={`"bg-blue-50 w-auto py-2 px-6 antialiased  text-wrap overflow-ellipsis overflow-y-auto`}
                       >
                         <Typewriter
                           onInit={(typewriter) => {

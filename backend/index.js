@@ -5,7 +5,7 @@ import fastifyCors from "@fastify/cors";
 import 'dotenv/config'
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY)
-const model = genAI.getGenerativeModel({model: "gemini-1.5-flash", maxOutputTokens: 20})
+const model = genAI.getGenerativeModel({model: "gemini-1.5-flash", maxOutputTokens: 200})
 
 const server = fastify({
   logger: true,
@@ -25,7 +25,7 @@ server.register(fastifyCors, {
 server.post(("/prompt"), async (request, reply) => {
   let { prompt } = request.body
   console.log(request.body)
-  // prompt.concat(", explain briefly")
+  // prompt.concat(", explain briefly, without markdown.")
   
   const result = await model.generateContent(prompt)
   const response = await result.response
