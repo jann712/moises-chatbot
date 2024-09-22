@@ -1,7 +1,7 @@
-import { createClient } from "redis";
+// import { createClient } from "redis";
 
-const redisClient = createClient()
+// const redisClient = createClient()
 
-await redisClient.connect()
+// await redisClient.connect()
 
-export default redisClient
+// export default redisClient

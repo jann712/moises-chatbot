@@ -1,5 +1,4 @@
 import fastify from "fastify";
-import fastifyIO from "fastify-socket.io";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fastifyCors from "@fastify/cors";
 import 'dotenv/config'
@@ -10,13 +9,6 @@ const model = genAI.getGenerativeModel({model: "gemini-1.5-flash", maxOutputToke
 const server = fastify({
   logger: true,
 });
-
-// server.register(fastifyIO, {
-//   cors: {
-//     origin: "http://localhost:5173",
-    
-//   },
-// });
 
 server.register(fastifyCors, {
   origin: "http://localhost:5173"

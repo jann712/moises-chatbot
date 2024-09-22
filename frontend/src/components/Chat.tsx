@@ -1,13 +1,11 @@
 import { Message } from "../types";
 import { useContext, useState } from "react";
 import Typewriter from "typewriter-effect";
-// import socket from "../lib/socket.js";
 import { CurrentRoomContextType } from "../types";
 import { CurrentRoomContext } from "../lib/contexts.js";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { marked } from "marked";
-import { parse } from "uuid";
 
 export default function Chat() {
   const queryClient = useQueryClient()
