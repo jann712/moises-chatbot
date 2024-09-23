@@ -1,47 +1,45 @@
 import fastify from "fastify";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fastifyCors from "@fastify/cors";
-import 'dotenv/config'
+import "dotenv/config";
 
-const genAI = new GoogleGenerativeAI(process.env.API_KEY)
-const model = genAI.getGenerativeModel({model: "gemini-1.5-flash", maxOutputTokens: 200})
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  maxOutputTokens: 200,
+});
 
 const server = fastify({
   logger: true,
 });
 
 server.register(fastifyCors, {
-  origin: "http://localhost:5173"
-})
+  origin: "http://localhost:5173",
+});
 
-server.post(("/prompt"), async (request, reply) => {
-  let { prompt } = request.body
-  console.log(request.body)
-  // prompt.concat(", explain briefly, without markdown.")
-  
-  const result = await model.generateContent(prompt)
-  const response = await result.response
-  const text = response.text()
-  return reply.status(200).send(text)
-})
+server.post("/prompt", async (request, reply) => {
+  const messages = request.body;
+  console.log(messages)
+  // console.log(`
+  //   #################################################################################################################
+  //   messages: ${JSON.stringify(messages)}
+  //   message: ${messages[-1]}
+  //   `)
 
-// server.ready().then(() => {
-//   server.io.on("connection", (socket) => {
-//     socket.on("message", (data) => {
-//       // socket.emit("message", data);
-//       socket.emit("message", [
-//         data,
-//         {
-//           message: `resposta espelhada: ${data.message}`,
-//           id: "server"
-//         }
-//       ]);
-//     });
+  const chat = model.startChat({
+    history: messages,
+  });
 
-//     socket.on("room", (room) => {
-//       socket.join(room);
-//     });
-//   });
-// });
+
+  const result = await chat.sendMessage(messages[messages.length -1].parts[0].text);
+
+  console.log(result.response.text())
+  return reply.status(200).send(result.response.text());
+
+  // const result = await model.generateContent(prompt)
+  // const response = await result.response
+  // const text = response.text()
+  // return reply.status(200).send(text)
+});
 
 server.listen({ port: 3000 });

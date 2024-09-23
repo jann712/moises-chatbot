@@ -1,42 +1,32 @@
 import { Message } from "../types";
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import Typewriter from "typewriter-effect";
-import { CurrentRoomContextType } from "../types";
-import { CurrentRoomContext } from "../lib/contexts.js";
-import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { marked } from "marked";
 
 export default function Chat() {
-  const queryClient = useQueryClient()
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const { currentRoom, setCurrentRoom } =
-    useContext<CurrentRoomContextType>(CurrentRoomContext);
+  // const { currentRoom, setCurrentRoom } =
+  //   useContext<CurrentRoomContextType>(CurrentRoomContext);
 
-    // const { data, isLoading } = useQuery({queryKey: ['completion', currentMessage], queryFn: async () => {
-    //   const { data } = await axios.post(
-    //     "http://localhost:3000/prompt",
-    //   {
-    //     "prompt": currentMessage
-    //   }
-    //   )
-      
-    //   setMessages((messages) => [...messages, {id: "server", message: data}])
-    //   return data
-    // }})
-  async function fetchResponse (message:string) {
-    const { data } = await axios.post(
-      "http://localhost:3000/prompt",{
-        "prompt": message
-      }
-    )
+  async function fetchResponse(messages: Message[]) {
+    const { data } = await axios.post("http://localhost:3000/prompt", 
+      messages,
+    );
 
-    const parsedData = await marked.parse(data)
+    const parsedData = await marked.parse(data);
 
-    setMessages((messages) => [...messages, {id: "server", message: parsedData}])
-    return data
+    setMessages((messages) => [
+      ...messages,
+      { role: "model", parts: [{ text: parsedData }] },
+    ]);
+    // return data;
   }
+
+  useEffect(() => {
+    if (messages.length >= 1 && messages[messages.length -1].role != "model") fetchResponse(messages)
+  }, [messages])
 
   return (
     <div className="col-span-6 px-12">
@@ -49,12 +39,12 @@ export default function Chat() {
                   <div
                     key={index}
                     className={`flex items-center ${
-                      data.id == "user"
+                      data.role == "user"
                         ? "flex-row-reverse [&>div]:ml-6 h-full"
                         : "flex-row [&>div]:mr-6 h-full"
                     }`}
                   >
-                    {data.id == "user" ? (
+                    {data.role == "user" ? (
                       <div className="text-xl border-4 p-2 rounded-full border-orange-500">
                         🧍
                       </div>
@@ -66,11 +56,11 @@ export default function Chat() {
                     {/* <li className={`${data.id == props.socket.id ? "bg-orange-50" : "bg-blue-50"} w-auto py-2 px-6 antialiased rounded-full  text-wrap max-h-32 overflow-ellipsis overflow-hidden`}>
                           {data.message}
                         </li> */}
-                    {data.id == "user" ? (
+                    {data.role == "user" ? (
                       <li
                         className={`"bg-orange-50 w-auto py-2 px-6 antialiased text-wrap max-h-32 overflow-ellipsis overflow-y-auto`}
                       >
-                        {data.message}
+                        {data.parts[0].text}
                       </li>
                     ) : (
                       <li
@@ -78,11 +68,11 @@ export default function Chat() {
                       >
                         <Typewriter
                           onInit={(typewriter) => {
-                            typewriter.typeString(`${data.message}`).start();
+                            typewriter.typeString(`${data.parts[0].text}`).start();
                           }}
                           options={{
                             cursor: "",
-                            delay: 15,
+                            delay: 5,
                           }}
                         />
                       </li>
@@ -101,8 +91,26 @@ export default function Chat() {
               type="text"
               placeholder="Faça alguma pergunta..."
               value={text}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key == "Enter") {
+                  setMessages((messages) => [
+                    ...messages,
+                    { role: "user", parts: [{text: text}]},
+                  ]);
+                 
+                }
+              }}
+              onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key == "Enter") {
+                  setText("")
+                  e.target.value = ""
+                }
+              }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setText(e.target.value)
+                
+              }
+                
               }
             />
 
@@ -119,9 +127,14 @@ export default function Chat() {
                 //   message: text,
                 //   id: socket.id!
                 // }])
-                
-                setMessages((messages) => [...messages, {id: "user", message: text}])
-                fetchResponse(text!)
+
+                setMessages((messages) => [
+                  ...messages,
+                  { role: "user", parts: [{text: text}]},
+                ]);
+                setText("")
+                // console.dir(messages)
+                // fetchResponse(messages!);
               }}
             >
               <svg

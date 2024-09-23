@@ -1,12 +1,16 @@
 
+type Parts = {
+    text: string
+}
+
 export type Room = {
     name: string
     id: string
 }
 
 export type Message = {
-    message: string,
-    id: string
+    parts: Parts[],
+    role: string
 }
 
 export type RoomContextType = {
