@@ -11,9 +11,7 @@ export default function Chat() {
   //   useContext<CurrentRoomContextType>(CurrentRoomContext);
 
   async function fetchResponse(messages: Message[]) {
-    const { data } = await axios.post("http://localhost:3000/prompt", 
-      messages,
-    );
+    const { data } = await axios.post(`${import.meta.env.SERVER_URL}/prompt`, messages);
 
     const parsedData = await marked.parse(data);
 
@@ -25,8 +23,9 @@ export default function Chat() {
   }
 
   useEffect(() => {
-    if (messages.length >= 1 && messages[messages.length -1].role != "model") fetchResponse(messages)
-  }, [messages])
+    if (messages.length >= 1 && messages[messages.length - 1].role != "model")
+      fetchResponse(messages);
+  }, [messages]);
 
   return (
     <div className="col-span-6 px-12">
@@ -68,11 +67,13 @@ export default function Chat() {
                       >
                         <Typewriter
                           onInit={(typewriter) => {
-                            typewriter.typeString(`${data.parts[0].text}`).start();
+                            typewriter
+                              .typeString(`${data.parts[0].text}`)
+                              .start();
                           }}
                           options={{
                             cursor: "",
-                            delay: 5,
+                            delay: 10,
                           }}
                         />
                       </li>
@@ -95,23 +96,19 @@ export default function Chat() {
                 if (e.key == "Enter") {
                   setMessages((messages) => [
                     ...messages,
-                    { role: "user", parts: [{text: text}]},
+                    { role: "user", parts: [{ text: text }] },
                   ]);
-                 
                 }
               }}
               onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key == "Enter") {
-                  setText("")
-                  e.target.value = ""
+                  setText("");
+                  e.target.value = "";
                 }
               }}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setText(e.target.value)
-                
-              }
-                
-              }
+                setText(e.target.value);
+              }}
             />
 
             <button
@@ -130,9 +127,9 @@ export default function Chat() {
 
                 setMessages((messages) => [
                   ...messages,
-                  { role: "user", parts: [{text: text}]},
+                  { role: "user", parts: [{ text: text }] },
                 ]);
-                setText("")
+                setText("");
                 // console.dir(messages)
                 // fetchResponse(messages!);
               }}

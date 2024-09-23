@@ -14,17 +14,11 @@ const server = fastify({
 });
 
 server.register(fastifyCors, {
-  origin: "http://localhost:5173",
+  origin: process.env.FRONTEND_URL,
 });
 
 server.post("/prompt", async (request, reply) => {
   const messages = request.body;
-  console.log(messages)
-  // console.log(`
-  //   #################################################################################################################
-  //   messages: ${JSON.stringify(messages)}
-  //   message: ${messages[-1]}
-  //   `)
 
   const chat = model.startChat({
     history: messages,
