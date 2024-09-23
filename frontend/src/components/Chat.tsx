@@ -11,7 +11,8 @@ export default function Chat() {
   //   useContext<CurrentRoomContextType>(CurrentRoomContext);
 
   async function fetchResponse(messages: Message[]) {
-    const { data } = await axios.post(`${import.meta.env.SERVER_URL}/prompt`, messages);
+    const { data } = await axios.post(`${import.meta.env.VITE_SERVER_URL}/prompt`, messages);
+    console.log(import.meta.env.VITE_SERVER_URL)
 
     const parsedData = await marked.parse(data);
 
@@ -103,7 +104,7 @@ export default function Chat() {
               onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key == "Enter") {
                   setText("");
-                  e.target.value = "";
+                  // e.target.value = "";
                 }
               }}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
