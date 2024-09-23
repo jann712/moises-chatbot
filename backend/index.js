@@ -36,4 +36,4 @@ server.post("/prompt", async (request, reply) => {
   // return reply.status(200).send(text)
 });
 
-server.listen({ port: 3000 });
+server.listen({ port: process.env.PORT || 3000});
