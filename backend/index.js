@@ -29,11 +29,7 @@ server.post("/prompt", async (request, reply) => {
 
   console.log(result.response.text())
   return reply.status(200).send(result.response.text());
-
-  // const result = await model.generateContent(prompt)
-  // const response = await result.response
-  // const text = response.text()
-  // return reply.status(200).send(text)
+  
 });
 
-server.listen({ port: process.env.PORT || 3000, host: "0.0.0.0"});
+server.listen({ port: process.env.PORT || 3000, host: process.env.HOST || "localhost"});

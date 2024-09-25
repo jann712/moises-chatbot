@@ -1,22 +1,22 @@
-import React, { useContext, useState } from "react";
-import { CurrentRoomContext, RoomsContext } from "../lib/contexts.js";
-import { CurrentRoomContextType, RoomContextType } from "../types.js";
-import { v4 as uuidv4 } from "uuid";
+// import React, { useContext, useState } from "react";
+// import { CurrentRoomContext, RoomsContext } from "../lib/contexts.js";
+// import { CurrentRoomContextType, RoomContextType } from "../types.js";
+// import { v4 as uuidv4 } from "uuid";
 
 export default function Sidebar() {
-  const [sidebarText, setSidebarText] = useState<string | undefined>();
-  const [formOpen, setForm] = useState(false);
-  const { rooms, setRooms } = useContext<RoomContextType>(RoomsContext!);
-  const { currentRoom, setCurrentRoom } = useContext<CurrentRoomContextType>(
-    CurrentRoomContext!
-  );
+  // const [sidebarText, setSidebarText] = useState<string | undefined>();
+  // const [formOpen, setForm] = useState(false);
+  // const { rooms, setRooms } = useContext<RoomContextType>(RoomsContext!);
+  // const { currentRoom, setCurrentRoom } = useContext<CurrentRoomContextType>(
+  //   CurrentRoomContext!
+  // );
 
   return (
     <div className="col-span-1 bg-slate-700 h-full p-6 [&>*]:text-white [&>*]:text-start">
-      <div className="my-7">
-        <h1 className="font-normal text-md text-center">🌊 moisés chatbot</h1>
+      <div className="my-7 px-0 mx-0">
+        <h1 className="font-normal text-md text-center ">🌊 moisés chatbot</h1>
       </div>
-      <div className="flex flex-col gap-2">
+      {/* <div className="flex flex-col gap-2">
         {rooms.map((room, index) => {
           return (
             <button
@@ -76,7 +76,7 @@ export default function Sidebar() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

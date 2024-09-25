@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 import Typewriter from "typewriter-effect";
 import axios from "axios";
 import { marked } from "marked";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export default function Chat() {
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
-  // const { currentRoom, setCurrentRoom } =
-  //   useContext<CurrentRoomContextType>(CurrentRoomContext);
 
   async function fetchResponse(messages: Message[]) {
-    const { data } = await axios.post(`${import.meta.env.VITE_SERVER_URL}/prompt`, messages);
-    console.log(import.meta.env.VITE_SERVER_URL)
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_SERVER_URL}/prompt`,
+      messages
+    );
 
     const parsedData = await marked.parse(data);
 
@@ -20,7 +21,6 @@ export default function Chat() {
       ...messages,
       { role: "model", parts: [{ text: parsedData }] },
     ]);
-    // return data;
   }
 
   useEffect(() => {
@@ -33,7 +33,17 @@ export default function Chat() {
       <div className="h-screen">
         <div className="overflow-hidden  h-5/6 mt-6">
           <div className="py-8 px-12 overflow-y-auto flex-col-reverse flex h-full no-scrollbar">
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-4 ">
+              {messages.length == 0 ? 
+              <div className="flex justify-center text-center">
+                <Alert className="w-1/2">
+                <AlertTitle>Comece a conversar com a nossa IA.</AlertTitle>
+                <AlertDescription>
+                  Nossa IA se especializa em vários assuntos.
+                </AlertDescription>
+              </Alert>
+              </div>
+              : ""}
               {messages.map((data, index) => {
                 return (
                   <div
@@ -53,18 +63,17 @@ export default function Chat() {
                         🌊
                       </div>
                     )}
-                    {/* <li className={`${data.id == props.socket.id ? "bg-orange-50" : "bg-blue-50"} w-auto py-2 px-6 antialiased rounded-full  text-wrap max-h-32 overflow-ellipsis overflow-hidden`}>
-                          {data.message}
-                        </li> */}
                     {data.role == "user" ? (
                       <li
                         className={`"bg-orange-50 w-auto py-2 px-6 antialiased text-wrap max-h-32 overflow-ellipsis overflow-y-auto`}
                       >
-                        {data.parts[0].text}
+                        <span className="inline-block align-middle">
+                          {data.parts[0].text}
+                        </span>
                       </li>
                     ) : (
                       <li
-                        className={`"bg-blue-50 w-auto py-2 px-6 antialiased  text-wrap overflow-ellipsis overflow-y-auto`}
+                        className={`"bg-blue-50 w-auto py-2 px-6 antialiased  text-wrap overflow-ellipsis overflow-y-auto align-middle`}
                       >
                         <Typewriter
                           onInit={(typewriter) => {
@@ -75,6 +84,8 @@ export default function Chat() {
                           options={{
                             cursor: "",
                             delay: 10,
+                            wrapperClassName: "align-middle inline-block",
+                            skipAddStyles: true,
                           }}
                         />
                       </li>
@@ -104,7 +115,6 @@ export default function Chat() {
               onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key == "Enter") {
                   setText("");
-                  // e.target.value = "";
                 }
               }}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,24 +125,11 @@ export default function Chat() {
             <button
               className="border-blue-100 hover:border-blue-200 transition-all border-2 rounded-full p-3"
               onClick={() => {
-                // setMessages([...messages, text]);
-                // socket.send({
-                //   message: text,
-                //   id: socket.id,
-                //   room: currentRoom,
-                // });
-                // setMessages([...messages, {
-                //   message: text,
-                //   id: socket.id!
-                // }])
-
                 setMessages((messages) => [
                   ...messages,
                   { role: "user", parts: [{ text: text }] },
                 ]);
                 setText("");
-                // console.dir(messages)
-                // fetchResponse(messages!);
               }}
             >
               <svg
